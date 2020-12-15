@@ -1,5 +1,13 @@
 void porta_motor() {
-  porta.write(90);
+  int i;
+  for (i = 0; i <= 90; i++) {
+    porta.write(i);
+    delay(10);
+  }
   delay(5000);
-  porta.write(0);
+  for (i; i >= 0; i--) {
+    porta.write(i);
+    delay(10);
+    portaaberta=1;
+  }
 }

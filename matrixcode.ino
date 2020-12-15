@@ -1,16 +1,23 @@
 void matrixcode() {
 
   lcd.setCursor(0, 0);
-  lcd.print("Enter Password:");
+  lcd.print("INSIRA A CHAVE:");
 
 
   customKey = customKeypad.getKey();
+
+
   if (customKey) {
     Pass[pass_count] = customKey;
     lcd.setCursor(pass_count, 1);
     lcd.print(Pass[pass_count]);
     pass_count++;                     //conta o numero de caracteres da password
-
+    int j;
+    for (j = 0; j <= pass_count; j++)
+    {
+      lcd.setCursor(j - 1, 1);
+      lcd.print("*");
+    }
 
   }
 
@@ -20,37 +27,76 @@ void matrixcode() {
     lcd.clear();
 
     if (!strcmp(Pass, Master_Pass)) { //compara com a password real
-      lcd.print("Correct");
+      lcd.print("CHAVE CORRETA");
       digitalWrite(RightCode, HIGH);
+      digitalWrite(iluminacao, HIGH);
+      chavecerta();
       porta_motor();
       digitalWrite(RightCode, LOW); //se for a certa aparece escrito correto e abre a porta por 5 segundos
-      IncorrectPass = 0;
-      Pass[Password_Length]= NULL;
-      
+      tentativas = TENTATIVAS-1;
+      Pass[Password_Length] = NULL;
+
+
     }
-    else {
-      // Password is incorrect
-      lcd.print("Incorrect");
+
+
+    else{
+      lcd.print("CHAVE ERRADA");
       lcd.setCursor(0, 1);
-      lcd.print("Faltam : ");
-      lcd.print(tentativas);
-      tentativas--;        //se estiver errada diz que esta errada no lcd e volta ao inicio
       digitalWrite(WrongCode, HIGH);
-      delay(1000);
-      digitalWrite(WrongCode, LOW);
-      IncorrectPass++;
+      lcd.print("TEM ");
+      lcd.print(tentativas);
+      lcd.print(" TENTATIVA");
+      chaveerrada();
+      Serial.println("else");
      
-     if (IncorrectPass==5) {
+      // Password is incorrect
+
+    if (tentativas == 0) {
+      Serial.println("if");
+     // digitalWrite(WrongCode, HIGH);
+      BT_intrusao();
+      Pass[Password_Length] = NULL;
       lcd.clear();
-      lcd.print("Alarme Intrusao");
-      Alarme();
-     }
+      Alarmeintrusao();
+
+      tentativas = TENTATIVAS;
+    }
+tentativas--;
+Serial.print("mamas");
+    }
+
     // Clear data and LCD display
     lcd.clear();
     clearData();
-    
-    
+
+
   }
+
 }
+
+
+
+
+
+
+
+void chavecerta() {
+
+  tone(alarme, 600);
+  delay(400);
+  tone(alarme, 800);
+  delay(400);
+  noTone(alarme);
+
+}
+
+void chaveerrada() {
+
+  tone(alarme, 300);
+  delay(1000);
+  digitalWrite(WrongCode, LOW);
+  noTone(alarme);
+
 
 }
